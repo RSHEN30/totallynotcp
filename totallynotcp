@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Prom Invite</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 1rem;
+      margin-top: 10px;
+    }
+
+    #messageBoard, #noScreen, #yesScreen {
+      text-align: center;
+    }
+
+    #fireworks {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    #meanFace {
+      font-size: 5rem;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="loginScreen">
+    <h2>Enter your name:</h2>
+    <input type="text" id="nameInput" placeholder="Name">
+    <button onclick="checkName()">Submit</button>
+  </div>
+
+  <!-- Message Board -->
+  <div id="messageBoard" class="hidden">
+    <h1>Will you go to prom with me?</h1>
+    <button onclick="answer('yes')">Yes</button>
+    <button onclick="answer('no')">No</button>
+  </div>
+
+  <!-- No Screen -->
+  <div id="noScreen" class="hidden">
+    <h1>WRONG ANSWER 😡</h1>
+    <div id="meanFace">😠</div>
+  </div>
+
+  <!-- Yes Screen -->
+  <div id="yesScreen" class="hidden">
+    <h1>🎉 Yay! See you at prom! 🎉</h1>
+  </div>
+
+  <canvas id="fireworks"></canvas>
+
+  <script>
+    const correctName = "Alena";
+
+    function checkName() {
+      const input = document.getElementById("nameInput").value.trim();
+      if (input === correctName) {
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("messageBoard").classList.remove("hidden");
+      }
+    }
+
+    function answer(response) {
+      document.getElementById("messageBoard").classList.add("hidden");
+      if (response === "no") {
+        document.getElementById("noScreen").classList.remove("hidden");
+      } else {
+        document.getElementById("yesScreen").classList.remove("hidden");
+        startFireworks();
+      }
+    }
+
+    // Fireworks Code
+    const canvas = document.getElementById("fireworks");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let particles = [];
+
+    function Particle(x, y, color) {
+      this.x = x;
+      this.y = y;
+      this.radius = 2;
+      this.color = color;
+      this.speed = Math.random() * 5 + 2;
+      this.angle = Math.random() * 2 * Math.PI;
+      this.life = 100;
+      this.update = function() {
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+        this.life -= 1;
+      };
+      this.draw = function() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+      };
+    }
+
+    function startFireworks() {
+      setInterval(() => {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height / 2;
+        const colors = ["#ff0", "#f0f", "#0ff", "#f00", "#0f0", "#00f"];
+        for (let i = 0; i < 50; i++) {
+          particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
+        }
+      }, 500);
+      animate();
+    }
+
+    function animate() {
+      ctx.fillStyle = "rgba(0,0,0,0.1)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      particles = particles.filter(p => p.life > 0);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
